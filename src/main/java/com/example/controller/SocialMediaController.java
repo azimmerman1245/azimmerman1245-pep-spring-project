@@ -9,4 +9,9 @@ package com.example.controller;
  */
 public class SocialMediaController {
 
+    // @GetMapping, @PostMapping, @PutMapping, @DeleteMapping
+    // ResponseEntity.status(statusNumber).Body("additionalMessageInBody")
+    // Can also use @RequestBody annotation to pull out of requestbody or add one
+    // Consult Spring Rest Controller, Spring Request Param, and Spring Response Entity Labs for specifics
+
 }
