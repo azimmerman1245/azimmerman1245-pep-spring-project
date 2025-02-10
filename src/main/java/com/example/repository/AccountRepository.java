@@ -8,5 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
     
-
+    // Use @Query to write Query statements with :variable as a parametrized variable that can be
+    // set using @Param("variable") DataType variable;
 }
