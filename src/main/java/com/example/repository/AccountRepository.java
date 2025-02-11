@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
     
     // Use @Query to write Query statements with :variable as a parametrized variable that can be
@@ -19,9 +21,8 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
      * @param password given password
      * @return the account created
      */
-
-     @Query("INSERT INTO account (username, password) VALUES (:usernameVar, :passwordVar)")
-     Account createAccount(@Param("usernameVar") String username, @Param("passwordVar") String password);
+    @Query("INSERT INTO account (username, password) VALUES (:usernameVar, :passwordVar)")
+    Account createAccount(@Param("usernameVar") String username, @Param("passwordVar") String password);
 
      /**
       * This Query retrieves an account from the database with a givern username and password
@@ -29,8 +30,7 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
       * @param password given password
       * @return an account if username and password match, or null if they do not
       */
-
-      @Query("SELECT * FROM account WHERE username = :usernameVar AND password = :passwordVar")
-      Account loginAccount(@Param("usernameVar") String username, @Param("passwordVar") String password);
+    @Query("SELECT * FROM account WHERE username = :usernameVar AND password = :passwordVar")
+    Account loginAccount(@Param("usernameVar") String username, @Param("passwordVar") String password);
 
 }
