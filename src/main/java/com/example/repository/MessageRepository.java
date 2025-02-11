@@ -57,7 +57,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer>{
      */
     @Modifying
     @Query("UPDATE message SET messageText = :messageTextVar WHERE messageId = :messageIdVar")
-    Message updateMessageById(@Param("messageTextVar") String messageText, @Param("messageIdVar") int messageId);
+    Integer updateMessageById(@Param("messageTextVar") String messageText, @Param("messageIdVar") int messageId);
 
     /**
      * This Query returns a list of messages posted by a given user
