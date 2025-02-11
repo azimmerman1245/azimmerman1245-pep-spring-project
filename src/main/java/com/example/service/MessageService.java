@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.entity.Message;
+import com.example.entity.Account;
 import com.example.repository.MessageRepository;
 import com.example.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,12 @@ public class MessageService {
     // Consult Spring JPA CRUD & JPA Multiplicity Coding Labs on implementing the Service Class using Optional operations
 
     MessageRepository messageRepository;
+    AccountRepository accountRepository;
+
     @Autowired
-    public MessageService(MessageRepository messageRepository) {
+    public MessageService(MessageRepository messageRepository, AccountRepository accountRepository) {
         this.messageRepository = messageRepository;
+        this.accountRepository = accountRepository;
     }
 
     public Message persistAccount(Message account) {
@@ -27,26 +31,41 @@ public class MessageService {
     }
 
     public Message createMessage(int postedBy, String messageText) {
-        return null;
+        Optional<Account> optionalAccount = accountRepository.findById(postedBy);
+        if (messageText != "" && messageText.length() <= 255 && optionalAccount.isPresent()) {
+            return messageRepository.createMessage(postedBy, messageText);
+        } else {
+            return null;
+        }
     }
 
     public List<Message> getAllMessages() {
-        return null;
+        return messageRepository.getAllMessages();
     }
 
     public Message getMessageById(int messageId) {
-        return null;
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (optionalMessage.isPresent()) {
+            return optionalMessage.get();
+        } else {
+            return null;
+        }
     }
 
     public int deleteMessageById(int messageId) {
-        return 0;
+        return messageRepository.deleteMessageById(messageId);
     }
 
-    public Message updateMessageById(int messageId, String messageText) {
-        return null;
+    public int updateMessageById(int messageId, String messageText) {
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (optionalMessage.isPresent() && messageText != "" && messageText.length() <= 255) {
+            return messageRepository.updateMessageById(messageText, messageId);
+        } else {
+            return 0;
+        }
     }
 
     public List<Message> getMessagesByPostedBy(int postedBy) {
-        return null;
+        return messageRepository.getMessageByPostedBy(postedBy);
     }
 }
