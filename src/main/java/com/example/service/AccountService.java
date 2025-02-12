@@ -1,6 +1,9 @@
 package com.example.service;
 
 import com.example.entity.Account;
+import com.example.exception.ClientErrorException;
+import com.example.exception.UnauthorizedUserException;
+import com.example.exception.UserAlreadyExistsException;
 import com.example.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,22 +28,30 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public Account createAccount(Account account) {
-        Optional<Account> optionalAccount = accountRepository.findById(accountRepository.findAccountByUsername(account.getUsername()).getAccountId());
-        if(optionalAccount.isEmpty()) {
-            persistAccount(account);
-            return accountRepository.findAccountByUsername(account.getUsername());
-        } else {
-            return null;
+    public Account createAccount(Account account, String username, String password) {
+        try {
+            if (username == "" || password.length() < 4) {
+                throw new ClientErrorException();
+            } else if (accountRepository.findAccountByUsername(username) != null) {
+                throw new UserAlreadyExistsException();
+            } else {
+                persistAccount(account);
+                return accountRepository.findAccountByUsername(username);
+            }
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
         }
     }
 
     public Account loginAccount(String username, String password) {
-        Optional<Account> optionalAccount = accountRepository.findById(accountRepository.findAccountByUsernameAndPassword(username, password).getAccountId());
-        if (optionalAccount.isPresent()) {
-            return optionalAccount.get();
-        } else {
-            return null;
+        try {
+            if (accountRepository.findAccountByUsernameAndPassword(username, password) == null) {
+                throw new UnauthorizedUserException();
+            } else {
+                return accountRepository.findAccountByUsernameAndPassword(username, password);
+            }
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
         }
     }
 }
