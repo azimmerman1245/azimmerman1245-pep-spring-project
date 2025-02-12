@@ -34,12 +34,12 @@ public interface MessageRepository extends JpaRepository<Message, Integer>{
      * @param messageId
      * @return number of rows affected
      */
-    void deleteMessageByMessageId(int messageId);
+    void deleteByMessageId(int messageId);
 
     /**
      * This Query returns a list of messages posted by a given user
      * @param postedBy
      * @return a list of messages
      */
-    List<Message> findMessageByPostedBy(int postedBy);
+    List<Message> findMessagesByPostedBy(int postedBy);
 }
