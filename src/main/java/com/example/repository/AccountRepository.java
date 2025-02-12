@@ -29,9 +29,15 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     /**
      * This Query is supplemental for createAccount and retrieves an account by their username
      * @param username given username
-     * @return the account retrieved
+     * @return the account retrieved, or null
      */
     Account findAccountByUsername(String username);
     
+    /**
+     * This Query is supplemental for createMessage and retrieves an account by their accountId
+     * @param accountId given accountId
+     * @return the account retrieved, or null
+     */
+    Account findAccountByAccountId(int accountId);
 
 }
