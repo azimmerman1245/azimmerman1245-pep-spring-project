@@ -17,8 +17,8 @@ public class MessageService {
     // Use @Autowired on the singleton instance
     // Consult Spring JPA CRUD & JPA Multiplicity Coding Labs on implementing the Service Class using Optional operations
 
-    MessageRepository messageRepository;
-    AccountRepository accountRepository;
+    private MessageRepository messageRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
     public MessageService(MessageRepository messageRepository, AccountRepository accountRepository) {
@@ -26,21 +26,22 @@ public class MessageService {
         this.accountRepository = accountRepository;
     }
 
-    public Message persistAccount(Message account) {
-        return messageRepository.save(account);
+    public Message persistMessage(Message message) {
+        return messageRepository.save(message);
     }
 
-    public Message createMessage(int postedBy, String messageText) {
-        Optional<Account> optionalAccount = accountRepository.findById(postedBy);
-        if (messageText != "" && messageText.length() <= 255 && optionalAccount.isPresent()) {
-            return messageRepository.createMessage(postedBy, messageText);
+    public Message createMessage(Message message) {
+        Optional<Account> optionalAccount = accountRepository.findById(message.getPostedBy());
+        if (message.getMessageText() != "" && message.getMessageText().length() <= 255 && optionalAccount.isPresent()) {
+            persistMessage(message);
+            return messageRepository.findMessageByMessageId(message.getMessageId());
         } else {
             return null;
         }
     }
 
     public List<Message> getAllMessages() {
-        return messageRepository.getAllMessages();
+        return messageRepository.findAll();
     }
 
     public Message getMessageById(int messageId) {
@@ -53,19 +54,25 @@ public class MessageService {
     }
 
     public int deleteMessageById(int messageId) {
-        return messageRepository.deleteMessageById(messageId);
+        try {
+            messageRepository.deleteMessageByMessageId(messageId);
+            return 1;
+        } catch (NullPointerException ex) {
+            return 0;
+        }
     }
 
-    public int updateMessageById(int messageId, String messageText) {
-        Optional<Message> optionalMessage = messageRepository.findById(messageId);
-        if (optionalMessage.isPresent() && messageText != "" && messageText.length() <= 255) {
-            return messageRepository.updateMessageById(messageText, messageId);
+    public int updateMessageById(Message message) {
+        Optional<Message> optionalMessage = messageRepository.findById(message.getMessageId());
+        if (optionalMessage.isPresent() && message.getMessageText() != "" && message.getMessageText().length() <= 255) {
+            persistMessage(message);
+            return 1;
         } else {
             return 0;
         }
     }
 
     public List<Message> getMessagesByPostedBy(int postedBy) {
-        return messageRepository.getMessageByPostedBy(postedBy);
+        return messageRepository.findMessageByPostedBy(postedBy);
     }
 }

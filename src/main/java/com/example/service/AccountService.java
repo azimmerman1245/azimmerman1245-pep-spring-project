@@ -14,7 +14,8 @@ public class AccountService {
     // Use @Autowired for singleton instance
     // Consult Spring JPA CRUD & JPA Multiplicity Coding Labs on implementing the Service Class using Optional operations
 
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
+
     @Autowired
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
@@ -24,17 +25,18 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public Account createAccount(String username, String password) {
-        Optional<Account> optionalAccount = accountRepository.findById(accountRepository.findAccountByUsername(username).getAccountId());
-        if(optionalAccount.isEmpty() && username != "" && password.length() > 3) {
-            return accountRepository.createAccount(username, password);
+    public Account createAccount(Account account) {
+        Optional<Account> optionalAccount = accountRepository.findById(accountRepository.findAccountByUsername(account.getUsername()).getAccountId());
+        if(optionalAccount.isEmpty()) {
+            persistAccount(account);
+            return accountRepository.findAccountByUsername(account.getUsername());
         } else {
             return null;
         }
     }
 
     public Account loginAccount(String username, String password) {
-        Optional<Account> optionalAccount = accountRepository.findById(accountRepository.loginAccount(username, password).getAccountId());
+        Optional<Account> optionalAccount = accountRepository.findById(accountRepository.findAccountByUsernameAndPassword(username, password).getAccountId());
         if (optionalAccount.isPresent()) {
             return optionalAccount.get();
         } else {

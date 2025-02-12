@@ -17,53 +17,29 @@ public interface MessageRepository extends JpaRepository<Message, Integer>{
     // Use named Queries? Check Named Queries Coding Challenge
 
     /**
-     * This Query will create a message with the given FK postedBy and message text
-     * @param postedBy the userID of the account that posted the message
-     * @param messageText text of the message to be created
-     * @return the message populated to the database
-     */
-    @Query("INSERT INTO message (postedBy, messageText) VALUES (:postedByVar, :messageTextVar)")
-    Message createMessage(@Param("postedByVar") int postedBy, @Param("messageTextVar") String messageText);
-
-    /**
      * This Query returns a list of all messages in the database
      * @return List of all messages
      */
-    @Query("SELECT * FROM message")
-    List<Message> getAllMessages();
+    List<Message> findAll();
 
     /**
      * This Query retrieves a message by its messageId
      * @param messageId
      * @return message whose messageId matches the given request
      */
-    @Query("SELECT * FROM message WHERE messageId = :messageIdVar")
-    Message getMessageById(@Param("messageIdVar") int messageId);
+    Message findMessageByMessageId(int messageId);
 
     /**
      * This Query deletes a message specified by the messageId and returns the number of rows affected as an integer
      * @param messageId
      * @return number of rows affected
      */
-    @Modifying
-    @Query("DELETE * FROM message WHERE messageId = :messageIdVar")
-    Integer deleteMessageById(@Param("messageIdVar") int messageId);
-
-    /**
-     * This Query updates the messageText of a message with a given messageId
-     * @param messageId
-     * @param messageText
-     * @return updated message
-     */
-    @Modifying
-    @Query("UPDATE message SET messageText = :messageTextVar WHERE messageId = :messageIdVar")
-    Integer updateMessageById(@Param("messageTextVar") String messageText, @Param("messageIdVar") int messageId);
+    void deleteMessageByMessageId(int messageId);
 
     /**
      * This Query returns a list of messages posted by a given user
      * @param postedBy
      * @return a list of messages
      */
-    @Query("SELECT * FROM message WHERE postedBy = :postedByVar")
-    List<Message> getMessageByPostedBy(@Param("postedByVar") int postedBy);
+    List<Message> findMessageByPostedBy(int postedBy);
 }
