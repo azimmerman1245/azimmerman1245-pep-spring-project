@@ -4,7 +4,6 @@ import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
-import com.example.exception.CustomException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,16 +41,58 @@ public class SocialMediaController {
     private MessageService messageService;
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public Account createAccount(@RequestBody Account account) {
-        if (account.getUsername() == "" || account.getPassword().length() < 4) {
-            ResponseEntity.status(400);
+    public ResponseEntity<?> createAccount(@RequestBody Account account) {
+        String username = account.getUsername();
+        String password = account.getPassword();
+        Account newAccount = accountService.createAccount(account, username, password);
+
+        return ResponseEntity.ok(newAccount);
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public ResponseEntity<?> loginAccount(@RequestBody Account account) {
+        String username = account.getUsername();
+        String password = account.getPassword();
+        Account checkedAccount = accountService.loginAccount(username, password);
+
+        return ResponseEntity.ok(checkedAccount);
+    }
+
+    @RequestMapping(value = "/messages", method = RequestMethod.POST)
+    public ResponseEntity<?> createMessage(@RequestBody Message message) {
+        Message checkedMessage = messageService.createMessage(message);
+
+        return ResponseEntity.ok(checkedMessage);
+    }
+
+    @RequestMapping(value = "/messages", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllMessages() {
+        return ResponseEntity.ok(messageService.getAllMessages());
+    }
+
+    @RequestMapping(value = "/messages/{messageId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getMessageById(@PathVariable int messageId) {
+        return ResponseEntity.ok(messageService.getMessageById(messageId));
+    }
+
+    @RequestMapping(value = "/messages/{messageId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteMessageById(@PathVariable int messageId) {
+        if (messageService.deleteMessageById(messageId) == 1) {
+            return ResponseEntity.ok(1);
+        } else {
+            return ResponseEntity.ok(null);
         }
-        Account newAccount = accountService.createAccount(account);
-        if (newAccount == null) {
-            ResponseEntity.status(409);
-        }
-        return newAccount;
+    }
+
+    @RequestMapping(value = "/messages/{messageId}", method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateMessageById(@PathVariable int messageId, @RequestBody Message message) {
+        String messageText = message.getMessageText();
+        return ResponseEntity.ok(messageService.updateMessageById(messageText, messageId));
+    }
+
+    @RequestMapping(value = "/accounts/{accountId}/messages", method = RequestMethod.GET)
+    public ResponseEntity<?> getMessageByAccountId(@PathVariable int accountId) {
+        return ResponseEntity.ok(messageService.getMessagesByPostedBy(accountId));
     }
 
 }
