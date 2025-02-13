@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.entity.Message;
+import com.example.exception.ClientErrorException;
 import com.example.entity.Account;
 import com.example.repository.MessageRepository;
 import com.example.repository.AccountRepository;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.transaction.Transactional;
 
 @Service
 public class MessageService {
@@ -31,12 +34,15 @@ public class MessageService {
     }
 
     public Message createMessage(Message message) {
-        Optional<Account> optionalAccount = accountRepository.findById(message.getPostedBy());
-        if (message.getMessageText() != "" && message.getMessageText().length() <= 255 && optionalAccount.isPresent()) {
-            persistMessage(message);
-            return messageRepository.findMessageByMessageId(message.getMessageId());
-        } else {
-            return null;
+        try {
+            if (message.getMessageText() != "" && message.getMessageText().length() <= 255 && accountRepository.findAccountByAccountId(message.getPostedBy()) != null) {
+                persistMessage(message);
+                return messageRepository.findMessageByMessageId(message.getMessageId());
+            } else {
+                throw new ClientErrorException();
+            }
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
         }
     }
 
@@ -45,34 +51,42 @@ public class MessageService {
     }
 
     public Message getMessageById(int messageId) {
-        Optional<Message> optionalMessage = messageRepository.findById(messageId);
-        if (optionalMessage.isPresent()) {
-            return optionalMessage.get();
-        } else {
-            return null;
+        try {
+            return messageRepository.findMessageByMessageId(messageId);
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
         }
     }
 
+    @Transactional
     public int deleteMessageById(int messageId) {
         try {
-            messageRepository.deleteMessageByMessageId(messageId);
-            return 1;
-        } catch (NullPointerException ex) {
+            if (messageRepository.findMessageByMessageId(messageId) != null) {
+                messageRepository.deleteByMessageId(messageId);
+                return 1;
+            }
             return 0;
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
         }
     }
 
-    public int updateMessageById(Message message) {
-        Optional<Message> optionalMessage = messageRepository.findById(message.getMessageId());
-        if (optionalMessage.isPresent() && message.getMessageText() != "" && message.getMessageText().length() <= 255) {
-            persistMessage(message);
-            return 1;
-        } else {
-            return 0;
+    public int updateMessageById(String messageText, int messageId) {
+        try {
+            if (messageRepository.findMessageByMessageId(messageId) != null && messageText.length() <= 255 && messageText != "") {
+                Message updatedMessage = messageRepository.findById(messageId).get();
+                updatedMessage.setMessageText(messageText);
+                messageRepository.save(updatedMessage);
+                return 1;
+            } else {
+                throw new ClientErrorException();
+            }
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
         }
     }
 
     public List<Message> getMessagesByPostedBy(int postedBy) {
-        return messageRepository.findMessageByPostedBy(postedBy);
+        return messageRepository.findMessagesByPostedBy(postedBy);
     }
 }
